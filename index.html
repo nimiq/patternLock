@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="./patternLock.css"  rel="stylesheet" type="text/css" />
+    <script src="./patternLock.js"></script>
+    <style>
+        #patternContainer {
+            margin: 80px auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="patternContainer"></div>
+
+    <script type="module">
+        import PatternLock from './patternLock.js';
+
+        const lock = new PatternLock("#patternContainer", {
+            onDraw: function(pattern) {
+                console.log(pattern);
+            }
+        });
+    </script>
+</body>
+</html>

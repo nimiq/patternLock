@@ -1,30 +1,11 @@
 /*
-    patternLock.js v 1.0.1
-    Author: Sudhanshu Yadav
+    patternLock.js v 1.1.0
+    Author: Sudhanshu Yadav, Nimiq Foundation
     Copyright (c) 2015,2016 Sudhanshu Yadav - ignitersworld.com , released under the MIT license.
-    Demo on: ignitersworld.com/lab/patternLock.html
+    Copyright (c) 2018 Nimiq Foundation - nimiq.com , released under the MIT license.
 */
 
-;(function(factory) {
-    /** support UMD ***/
-    var global = Function('return this')() || (42, eval)('this');
-    if (typeof define === "function" && define.amd) {
-        define(["jquery"], function($) {
-            return (global.PatternLock = factory($, global));
-        });
-    } else if (typeof module === "object" && module.exports) {
-        module.exports = global.document ?
-            factory(require("jquery"), global) :
-            function(w) {
-                if (!w.document) {
-                    throw new Error("patternLock requires a window with a document");
-                }
-                return factory(require("jquery")(w), w);
-            };
-    } else {
-        global.PatternLock = factory(global.jQuery, global);
-    }
-}(function($, window, undefined) {
+export default (function(window, undefined) {
     "use strict";
 
     var document = window.document;
@@ -44,13 +25,12 @@
             html.push('<li class="patt-circ" style="margin:' + margin + 'px; width : ' + (radius * 2) + 'px; height : ' + (radius * 2) + 'px; -webkit-border-radius: ' + radius + 'px; -moz-border-radius: ' + radius + 'px; border-radius: ' + radius + 'px; "><div class="patt-dots"></div></li>');
         }
         html.push('</ul>');
-        holder.html(html.join('')).css({
-            'width': (matrix[1] * (radius * 2 + margin * 2) + margin * 2) + 'px',
-            'height': (matrix[0] * (radius * 2 + margin * 2) + margin * 2) + 'px'
-        });
+        holder.innerHTML = html.join('');
+        holder.style.width = (matrix[1] * (radius * 2 + margin * 2) + margin * 2) + 'px';
+        holder.style.height = (matrix[0] * (radius * 2 + margin * 2) + margin * 2) + 'px';
 
         //select pattern circle
-        iObj.pattCircle = iObj.holder.find('.patt-circ');
+        iObj.pattCircle = iObj.holder.querySelectorAll('.patt-circ');
 
     }
 
@@ -74,22 +54,24 @@
 
             //check if pattern is visible or not
             if (!iObj.option.patternVisible) {
-                iObj.holder.addClass('patt-hidden');
+                iObj.holder.classList.add('patt-hidden');
             }
 
             var touchMove = e.type == "touchstart" ? "touchmove" : "mousemove",
                 touchEnd = e.type == "touchstart" ? "touchend" : "mouseup";
 
             //assign events
-            $(this).on(touchMove + '.pattern-move', function(e) {
+            window.__patternLockMoveHandler = function(e) {
                 moveHandler.call(this, e, obj);
-            });
-            $(document).one(touchEnd, function() {
+            };
+
+            this.addEventListener(touchMove, window.__patternLockMoveHandler);
+            document.addEventListener(touchEnd, function() {
                 endHandler.call(this, e, obj);
-            });
+            }, {once: true});
             //set pattern offset
-            var wrap = iObj.holder.find('.patt-wrap'),
-                offset = wrap[0].getBoundingClientRect();
+            var wrap = iObj.holder.querySelector('.patt-wrap'),
+                offset = wrap.getBoundingClientRect();
             iObj.wrapTop = offset.top;
             iObj.wrapLeft = offset.left;
 
@@ -111,15 +93,13 @@
 
             if (patternAry.length > 0) {
                 var laMove = getLengthAngle(iObj.lineX1, posObj.x, iObj.lineY1, posObj.y);
-                iObj.line.css({
-                    'width': (laMove.length + 10) + 'px',
-                    'transform': 'rotate(' + laMove.angle + 'deg)'
-                });
+                iObj.line.style.width = (laMove.length + 10) + 'px';
+                iObj.line.style.transform = 'rotate(' + laMove.angle + 'deg)';
             }
 
 
             if (idx && ((option.allowRepeat && patternAry[patternAry.length - 1] !== pattId) || patternAry.indexOf(pattId) === -1)) {
-                var elm = $(li[idx - 1]);
+                var elm = li[idx - 1];
 
                 //mark if any points are in middle of previous point and current point, if it does check them
                 if (iObj.lastPosObj) {
@@ -146,7 +126,7 @@
                             iObj.addDirectionClass({i: ip, j: jp});
 
                             //mark a point added
-                            iObj.markPoint($(li[nextPattId - 1]), nextPattId);
+                            iObj.markPoint(li[nextPattId - 1], nextPattId);
 
                             //add line between the points
                             iObj.addLine({i: ip,j: jp});
@@ -173,7 +153,9 @@
                 pattern = iObj.patternAry.join(option.delimiter);
 
             //remove hidden pattern class and remove event
-            iObj.holder.off('.pattern-move').removeClass('patt-hidden');
+            iObj.holder.removeEventListener("touchmove", window.__patternLockMoveHandler);
+            iObj.holder.removeEventListener("mousemove", window.__patternLockMoveHandler);
+            iObj.holder.classList.remove('patt-hidden');
 
             if (!pattern) return;
 
@@ -224,7 +206,7 @@
         },
         markPoint: function(elm, pattId) {
             //add the current element on pattern
-            elm.addClass('hovered');
+            elm.classList.add('hovered');
 
             //push pattern on array
             this.patternAry.push(pattId);
@@ -247,24 +229,25 @@
             if (patternAry.length > 1) {
                 //to fix line
                 var lA = getLengthAngle(_this.lineX1, newX, _this.lineY1, newY);
-                _this.line.css({
-                    'width': (lA.length + 10) + 'px',
-                    'transform': 'rotate(' + lA.angle + 'deg)'
-                });
+                _this.line.style.width = (lA.length + 10) + 'px';
+                _this.line.style.transform = 'rotate(' + lA.angle + 'deg)';
 
-                if (!lineOnMove) _this.line.show();
+                if (!lineOnMove) _this.line.style.display = 'block';
             }
 
 
             //to create new line
-            var line = $('<div class="patt-lines" style="top:' + (newY - 5) + 'px; left:' + (newX - 5) + 'px"></div>');
+            var line = document.createElement('div');
+            line.classList.add('patt-lines');
+            line.style.top = (newY - 5 + this.wrapTop) + 'px';
+            line.style.left = (newX - 5 + this.wrapLeft) + 'px';
             _this.line = line;
             _this.lineX1 = newX;
             _this.lineY1 = newY;
             //add on dom
 
-            _this.holder.append(line);
-            if (!lineOnMove) _this.line.hide();
+            _this.holder.appendChild(line);
+            if (!lineOnMove) _this.line.style.display = 'none';
         },
         // add direction on point and line
         addDirectionClass: function(curPos) {
@@ -278,7 +261,8 @@
             direction = direction.join('-');
 
             if (direction) {
-                point.add(line).addClass(direction + " dir");
+                point.classList.add(direction, "dir");
+                line.classList.add(direction, "dir");
             }
         }
 
@@ -288,10 +272,13 @@
         var self = this,
             token = self.token = Math.random(),
             iObj = objectHolder[token] = new InternalMethods(),
-            holder = iObj.holder = $(selector);
+            holder = iObj.holder = document.querySelector(selector);
 
         //if holder is not present return
-        if (holder.length === 0) return;
+        if (!holder) {
+            console.error('PatternLock: selector ' + selector + ' not found!');
+            return;
+        }
 
         iObj.object = self;
 
@@ -303,17 +290,20 @@
         var matrix = option.matrix;
         if (matrix && matrix[0] * matrix[1] > 9) defaultsFixes.delimiter = ",";
 
-        option = iObj.option = $.extend({}, PatternLock.defaults, defaultsFixes, option);
+        option = iObj.option = Object.assign({}, PatternLock.defaults, defaultsFixes, option);
         readyDom(iObj);
 
         //add class on holder
-        holder.addClass('patt-holder');
+        holder.classList.add('patt-holder');
 
         //change offset property of holder if it does not have any property
-        if (holder.css('position') == "static") holder.css('position', 'relative');
+        if (holder.style.position == "static") holder.style.position = 'relative';
 
         //assign event
-        holder.on("touchstart mousedown", function(e) {
+        holder.addEventListener("touchstart", function(e) {
+            startHandler.call(this, e, self);
+        });
+        holder.addEventListener("mousedown", function(e) {
             startHandler.call(this, e, self);
         });
 
@@ -404,8 +394,8 @@
         reset: function() {
             var iObj = objectHolder[this.token];
             //to remove lines
-            iObj.pattCircle.removeClass('hovered dir s n w e s-w s-e n-w n-e');
-            iObj.holder.find('.patt-lines').remove();
+            iObj.pattCircle.forEach(el => el.classList.remove('hovered', 'dir', 's', 'n', 'w', 'e', 's-w', 's-e', 'n-w', 'n-e'));
+            iObj.holder.querySelectorAll('.patt-lines').forEach(el => iObj.holder.removeChild(el));
 
             //add/reset a array which capture pattern
             iObj.patternAry = [];
@@ -414,12 +404,12 @@
             iObj.lastPosObj = null;
 
             //remove error class if added
-            iObj.holder.removeClass('patt-error');
+            iObj.holder.classList.remove('patt-error');
 
         },
         //to display error if pattern is not drawn correct
         error: function() {
-            objectHolder[this.token].holder.addClass('patt-error');
+            objectHolder[this.token].holder.classList.add('patt-error');
         },
         //to check the drawn pattern against given pattern
         checkForPattern: function(pattern, success, error) {
@@ -443,4 +433,4 @@
 
     return PatternLock;
 
-}));
+})(window);
