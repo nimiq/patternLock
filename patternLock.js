@@ -72,6 +72,7 @@ export default (function(window, undefined) {
             //set pattern offset
             var wrap = iObj.holder.querySelector('.patt-wrap'),
                 offset = wrap.getBoundingClientRect();
+            iObj.wrapper = wrap;
             iObj.wrapTop = offset.top;
             iObj.wrapLeft = offset.left;
 
@@ -162,7 +163,7 @@ export default (function(window, undefined) {
             option.onDraw(pattern);
 
             //to remove last line
-            iObj.line.remove();
+            if (iObj.line.parentNode) iObj.line.parentNode.removeChild(iObj.line);
 
 
 
@@ -239,14 +240,14 @@ export default (function(window, undefined) {
             //to create new line
             var line = document.createElement('div');
             line.classList.add('patt-lines');
-            line.style.top = (newY - 5 + this.wrapTop) + 'px';
-            line.style.left = (newX - 5 + this.wrapLeft) + 'px';
+            line.style.top = (newY - 5) + 'px';
+            line.style.left = (newX - 5) + 'px';
             _this.line = line;
             _this.lineX1 = newX;
             _this.lineY1 = newY;
-            //add on dom
 
-            _this.holder.appendChild(line);
+            //add on dom
+            _this.wrapper.appendChild(line);
             if (!lineOnMove) _this.line.style.display = 'none';
         },
         // add direction on point and line
@@ -395,7 +396,7 @@ export default (function(window, undefined) {
             var iObj = objectHolder[this.token];
             //to remove lines
             iObj.pattCircle.forEach(el => el.classList.remove('hovered', 'dir', 's', 'n', 'w', 'e', 's-w', 's-e', 'n-w', 'n-e'));
-            iObj.holder.querySelectorAll('.patt-lines').forEach(el => iObj.holder.removeChild(el));
+            iObj.holder.querySelectorAll('.patt-lines').forEach(el => iObj.wrapper.removeChild(el));
 
             //add/reset a array which capture pattern
             iObj.patternAry = [];
