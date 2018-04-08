@@ -273,7 +273,7 @@ export default (function(window, undefined) {
         var self = this,
             token = self.token = Math.random(),
             iObj = objectHolder[token] = new InternalMethods(),
-            holder = iObj.holder = document.querySelector(selector);
+            holder = iObj.holder = selector instanceof Node ? selector : document.querySelector(selector);
 
         //if holder is not present return
         if (!holder) {
