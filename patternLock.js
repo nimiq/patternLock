@@ -81,8 +81,8 @@ export default (function(window, undefined) {
         },
         moveHandler = function(e, obj) {
             e.preventDefault();
-            var x = e.clientX || e.originalEvent.touches[0].clientX,
-                y = e.clientY || e.originalEvent.touches[0].clientY,
+            var x = e.clientX || e.touches[0].clientX,
+                y = e.clientY || e.touches[0].clientY,
                 iObj = objectHolder[obj.token],
                 option = iObj.option,
                 li = iObj.pattCircle,
