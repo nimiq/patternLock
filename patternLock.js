@@ -1,5 +1,5 @@
 /*
-    patternLock.js v 1.1.0
+    patternLock.js v 1.1.1
     Author: Sudhanshu Yadav, Nimiq Foundation
     Copyright (c) 2015,2016 Sudhanshu Yadav - ignitersworld.com , released under the MIT license.
     Copyright (c) 2018 Nimiq Foundation - nimiq.com , released under the MIT license.

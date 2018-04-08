@@ -18,6 +18,11 @@ Check demo and documentation on <a href="http://ignitersworld.com/lab/patternLoc
 
 <h3>Major updates</h3>
 
+<strong>v1.1.1</strong>
+- Allow passing in a DOM node instead of string selector
+- Adapt to Nimiq style
+- Fix overlooked jQuery event handling
+
 <strong>v1.1.0</strong>
 - Removed jQuery dependency
 - Converted into ES6 module
